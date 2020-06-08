@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css">
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>API Parking Nantes</title>
+</head>
+
+ <body>
+   <div class="container" id="app">
+     <h3 class="text-center">Parking de Nantes centre</h3>
+       <div class="card align-items-center">
+        <div class="card-block text-center">
+            <h4 class="card-title"> Place de parking disponible</h4>
+        </div>
+         <div class="card-divider list-group">
+            <li class="list-group-item text-center d-inline-block" v-for="parking in parkings">
+                {{parking.fields.grp_nom}} - {{parking.fields.grp_disponible}}
+            </li>
+          </div>
+         </div>
+
+     </div>
+   </div>
+
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+   <script>
+    new Vue({
+            el: '#app',
+
+            data() {
+                return {
+                    parkings: null
+                }
+            },
+            mounted () {
+                axios
+                    .get('https://data.nantesmetropole.fr/api/records/1.0/search/?dataset=244400404_parkings-publics-nantes-disponibilites&q=&facet=grp_nom&facet=grp_statut')
+                    .then(response => (this.parkings = response.data.records))
+                }
+          });
+
+  </script>
+ </body>
+</html>
