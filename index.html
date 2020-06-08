@@ -1,47 +1,145 @@
 <!DOCTYPE html>
+
 <head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css">
- <meta charset="utf-8">
- <meta name="viewport" content="width=device-width, initial-scale=1">
- <title>API Parking Nantes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.3.1/css/foundation.min.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>API Parking Nantes</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+
+        body {
+            font: 1em 'Lucida Console';
+            color: #000000;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        h3 {
+            text-decoration: underline;
+            background-color: rgba(255, 255, 255, 0.63);
+        }
+
+
+        .card {
+            position: relative;
+            z-index: 1;
+            width: fit-content;
+            margin: 60px auto 0;
+            padding: 10px;
+            background: #fff;
+            height: auto;
+            color: black;
+        }
+
+        .card-header {
+            background-color: #687885;
+            color: #fff;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        #googlemaps {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+    </style>
 </head>
 
- <body>
-   <div class="container" id="app">
-     <h3 class="text-center">Parking de Nantes centre</h3>
-       <div class="card align-items-center">
-        <div class="card-block text-center">
-            <h4 class="card-title"> Place de parking disponible</h4>
+<body>
+    <div id="googlemaps"></div>
+    <div class="container ui-widget-content" id="app">
+        <div class="row justify-content-center">
+            <h3 class="text-center">Parking du centre ville de Nantes</h3>
+            <div class="col-md-12">
+                <section v-if="errored">
+                    <p>Nous ne sommes pas en mesure de récupérer ces informations pour le moment. Veuillez réessayer
+                        ultérieurement.</p>
+                </section>
+                <section v-else>
+                    <div v-if="loading">Chargement...</div>
+                    <div v-else class="card">
+                        <div class="card-header text-center">
+                            <h4 class="card-title"> Place de parking disponible</h4>
+                        </div>
+                        <div class="card-body">
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" v-for="parking in parkings">
+                                    {{parking.fields.grp_nom}} - {{parking.fields.grp_disponible}} disponibles /
+                                    {{parking.fields.grp_exploitation}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
-         <div class="card-divider list-group">
-            <li class="list-group-item text-center d-inline-block" v-for="parking in parkings">
-                {{parking.fields.grp_nom}} - {{parking.fields.grp_disponible}}
-            </li>
-          </div>
-         </div>
+    </div>
 
-     </div>
-   </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
 
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.5/vue.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-   <script>
-    new Vue({
+    <script>
+        new Vue({
             el: '#app',
 
             data() {
                 return {
-                    parkings: null
+                    parkings: null,
+                    loading: true,
+                    errored: false,
                 }
             },
-            mounted () {
+            mounted() {
                 axios
                     .get('https://data.nantesmetropole.fr/api/records/1.0/search/?dataset=244400404_parkings-publics-nantes-disponibilites&q=&facet=grp_nom&facet=grp_statut')
                     .then(response => (this.parkings = response.data.records))
-                }
-          });
+                    .catch(error => console.log(error))
+                    .finally(() => this.loading = false)
+            }
+        });
 
-  </script>
- </body>
+        $(function () {
+            $("#app").draggable();
+        });
+        var position = [47.2173, -1.5534];
+        function showGoogleMaps() {
+
+            var latLng = new google.maps.LatLng(position[0], position[1]);
+
+            var mapOptions = {
+                zoom: 16,
+                streetViewControl: false,
+                scaleControl: true,
+                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                center: latLng
+            };
+
+            map = new google.maps.Map(document.getElementById('googlemaps'),
+                mapOptions);
+            marker = new google.maps.Marker({
+                position: latLng,
+                map: map,
+                draggable: false,
+                animation: google.maps.Animation.DROP
+            });
+        }
+
+        google.maps.event.addDomListener(window, 'load', showGoogleMaps);
+    </script>
+</body>
+
 </html>
