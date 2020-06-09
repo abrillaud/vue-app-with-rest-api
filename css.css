@@ -1,0 +1,45 @@
+[v-cloak] {
+    display: none;
+}
+.bloc{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.img{
+    margin: auto;
+    padding-left: 15vw;
+
+}
+body {
+    font-family: 'Lucida Console';
+    color: #000000;
+}
+
+iframe{
+    display: block;
+}
+.container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    font-size: 0.9em;
+    border: 1px #687885 solid;
+    width: 20rem;
+    margin: 1vw;
+    padding: 10px;
+    background: #fff;
+    height: auto;
+    color: black;
+}
+
+.card-header {
+    height: 3rem;
+    background-color: #687885;
+    color: #fff;
+    margin-bottom: 2rem;
+}
